@@ -5,13 +5,17 @@ import NewProviderForm from '../components/forms/NewProviderForm';
 import ApiService from '../utils/apiService';
 import LoadingScreen from '../components/common/LoadingScreen';
 import { pathGet } from '../utils/utils';
+import Grid from "../components/ProviderGrid";
+import List from "../components/ProviderList";
 
 class ExplorePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       data: [],
-      isLoading: false
+      filtered: [],
+      isLoading: false,
+      viewType: "GALLERY"
     };
   }
 
@@ -19,9 +23,11 @@ class ExplorePage extends React.Component {
     this.setLoading(true);
     ApiService.get(ApiService.ENDPOINTS.providers)
       .then((data) => {
+        const removeEmptyData = data.filter(item => item.name && item.description && item.images)
         this.setState({
           isLoading: false,
-          data: data.data
+          data: removeEmptyData,
+          filtered:removeEmptyData
         });
       });
   }
@@ -32,29 +38,39 @@ class ExplorePage extends React.Component {
     });
   }
 
+  getDataFromState() {
+      return this.state.data || [];
+  }
   filterProviders = (event) => {
     // TASK 2:
     // On input, filter Available Providers based on Name, Address and Type
     //
     // ============== CODE GOES BELOW THIS LINE :) ==============
     const value = event.target.value;
-    const filter = this.state.data.filter(data => {
-      console.log(data);
-      return pathGet(data, value);
+    const data = this.getDataFromState().filter(data => {
+      return pathGet(data, value)
     });
-    console.log(filter);
+
+    this.setState({
+      ...this.state, filtered: data
+    });
   }
 
-  switchView = () => {
+  switchView = (type=0) => {
     // TASK 4:
     // onClick on a view preference, switch across the different view options (Gallery, List, Grid)
     // based on whatever the user selects.
     //
     // ============== CODE GOES BELOW THIS LINE :) ==============
+    const types = ['GALLERY', 'GRID', 'LIST'];
+    this.setState({
+      ...this.state,
+      viewType: types[type]
+    })
   }
 
   render() {
-    const { isLoading, data } = this.state;
+    const { isLoading, viewType, filtered: data } = this.state;
     return (
       <div className="container">
         <NavBar />
@@ -72,18 +88,21 @@ class ExplorePage extends React.Component {
                 />
               </div>
               <div className="layout-switcher">
-                  <i className="fa fa-images active" onClick={this.switchView}></i>
-                  <i className="fa fa-th-large" onClick={this.switchView}></i>
-                  <i className="fa fa-th-list" onClick={this.switchView}></i>
+                  <i className="fa fa-images active" onClick={() => this.switchView(0)}></i>
+                  <i className="fa fa-th-large" onClick={() => this.switchView(1)}></i>
+                  <i className="fa fa-th-list" onClick={() => this.switchView(2)}></i>
                 </div>
             </div>
-            {(isLoading || !data) ? (
+            {(isLoading || (!data)) ? (
               <LoadingScreen />
             ) : (
-              <React.Fragment>                
-                <Gallery
-                  items={data.map((item) => ({imageUrl: item.imageUrl, name: item.name, description: item.type}))}
-                />
+              <React.Fragment>
+                {
+                  viewType === 'GALLERY' && <Gallery
+                      items={data}
+                      onClick={(id) => this.props.history.push(`/provider/${id}`)}
+                  />
+                }
               </React.Fragment>
             )}
           </section>
@@ -92,7 +111,7 @@ class ExplorePage extends React.Component {
                 <h2 className="text-header">Can't find a Provider?</h2>
                 <p className="text-body">Feel free to recommend a new one.</p>
                 <hr/>
-                <NewProviderForm />
+                <NewProviderForm setLoading={this.setLoading}/>
               </div>
           </section>
         </div>

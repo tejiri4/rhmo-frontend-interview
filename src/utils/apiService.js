@@ -14,6 +14,10 @@ class ApiService {
 
   }
 
+  static headers = {
+    'Authorization': 'Bearer ' + process.env.REACT_APP_AUTH_TOKEN
+  }
+
   /**
    * @method get
    * @description makes a GET request
@@ -24,7 +28,8 @@ class ApiService {
 
   static async get(url, data) {
     const response = await fetch(
-      `${url}${data ? `?${queryString.stringify(data)}` : ''}`
+      `${url}${data ? `?${queryString.stringify(data)}` : ''}`,
+        { headers: ApiService.headers }
     );
     return response.json();
   }
@@ -39,10 +44,12 @@ class ApiService {
    */
 
   static async post(url, data) {
+
     const response = await fetch(
       url, {
         method: 'POST',
-        body: data
+        body: data,
+          headers: ApiService.headers
       }
     );
     return response.json();

@@ -23,18 +23,27 @@ export const pathGet = (data, query) => {
 
   // ============== CODE GOES BELOW THIS LINE :) ==============
 
-    let result = ''
     const searchObject = (data, path='') => {
         for(const value in data) {
-          if (data[value] === query) {
-            return `${path}.${value}`;
+          if (typeof data[value] === 'string') {
+              if (!data[value].toLowerCase().includes(query.toLowerCase())) {continue};
+              return `${path}.${value}`;
           }
-          if (typeof data[value] === 'string') {continue};
           const search = searchObject(data[value], query, `${path}.${value}`);
           if (search) {
             return search 
           }
         }
     }
-    searchObject(data, query, 'data');
+    return searchObject(data, query, 'data');
+}
+
+
+export const validateField = (fields) => {
+    for (const field in fields) {
+        if (fields[field] === '') {
+            return false;
+        }
+    }
+    return true;
 }
