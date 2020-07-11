@@ -33,13 +33,7 @@ class NewProviderForm extends React.Component {
     }
     handleFileInput = (event) => {
         const file = event.target.files[0]
-        this.setState({
-            ...this.state,
-            formField: {
-                ...this.state.formField,
-                ...event.target
-            },
-        })
+        
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
         fileReader.onload = (fileReaderEvent)  => {
@@ -48,6 +42,14 @@ class NewProviderForm extends React.Component {
                 imgPreview: fileReaderEvent.target.result
             })
         };
+       // following line allow upload of image, but the endpoint does not allow it.
+        // this.setState({
+        //     ...this.state,
+        //     formField: {
+        //         ...this.state.formField,
+        //         ...event.target
+        //     },
+        // })
     }
 
  submitForm = () => {
