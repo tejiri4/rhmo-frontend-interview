@@ -4,6 +4,7 @@ import Gallery from '../components/ProviderGallery'
 import NewProviderForm from '../components/forms/NewProviderForm';
 import ApiService from '../utils/apiService';
 import LoadingScreen from '../components/common/LoadingScreen';
+import { pathGet } from '../utils/utils';
 
 class ExplorePage extends React.Component {
   constructor(props) {
@@ -36,7 +37,12 @@ class ExplorePage extends React.Component {
     // On input, filter Available Providers based on Name, Address and Type
     //
     // ============== CODE GOES BELOW THIS LINE :) ==============
-    
+    const value = event.target.value;
+    const filter = this.state.data.filter(data => {
+      console.log(data);
+      return pathGet(data, value);
+    });
+    console.log(filter);
   }
 
   switchView = () => {
